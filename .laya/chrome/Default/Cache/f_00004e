@@ -1,0 +1,179 @@
+var View = laya.ui.View;
+var Dialog = laya.ui.Dialog;
+var ui;
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        var Elements;
+        (function (Elements) {
+            class NodePaletteItemUI extends View {
+                constructor() { super(); }
+                createChildren() {
+                    super.createChildren();
+                    this.createView(ui.Editor.Elements.NodePaletteItemUI.uiView);
+                }
+            }
+            NodePaletteItemUI.uiView = { "type": "View", "props": { "width": 275, "height": 14 }, "child": [{ "type": "Label", "props": { "y": 10, "x": 24, "var": "txt_name", "text": "label", "name": "label", "height": 14 } }, { "type": "Clip", "props": { "y": 10, "x": 10, "width": 14, "var": "clip_arrow", "skin": "editor/clip_tree_arrow.png", "name": "arrow", "height": 14, "clipY": 2 } }, { "type": "Image", "props": { "visible": false, "var": "img_node", "skin": "editor/img_node.png" } }] };
+            Elements.NodePaletteItemUI = NodePaletteItemUI;
+        })(Elements = Editor.Elements || (Editor.Elements = {}));
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        var Elements;
+        (function (Elements) {
+            class NodeViewUI extends View {
+                constructor() { super(); }
+                createChildren() {
+                    View.regComponent("ui.Editor.Elements.TitleViewUI", ui.Editor.Elements.TitleViewUI);
+                    super.createChildren();
+                    this.createView(ui.Editor.Elements.NodeViewUI.uiView);
+                }
+            }
+            NodeViewUI.uiView = { "type": "View", "props": { "width": 0, "height": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 200, "var": "bg", "skin": "comp/blank.png", "height": 200 } }, { "type": "TitleView", "props": { "var": "box_title", "runtime": "ui.Editor.Elements.TitleViewUI" } }, { "type": "Box", "props": { "y": 7, "x": 154 }, "child": [{ "type": "CheckBox", "props": { "y": 0, "x": 0, "var": "checkCall", "stateNum": 3, "skin": "editor/checkbox.png", "sizeGrid": "0,0,0,0", "label": "start" } }, { "type": "CheckBox", "props": { "y": 20, "x": 0, "var": "checkReturn", "stateNum": 3, "skin": "editor/checkbox.png", "sizeGrid": "0,0,0,0", "label": "end" } }] }] };
+            Elements.NodeViewUI = NodeViewUI;
+        })(Elements = Editor.Elements || (Editor.Elements = {}));
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        var Elements;
+        (function (Elements) {
+            class SlotInItemUI extends View {
+                constructor() { super(); }
+                createChildren() {
+                    super.createChildren();
+                    this.createView(ui.Editor.Elements.SlotInItemUI.uiView);
+                }
+            }
+            SlotInItemUI.uiView = { "type": "View", "props": { "width": 200, "height": 20 }, "child": [{ "type": "Clip", "props": { "y": 12, "var": "clip_slotIcon", "top": 2, "skin": "editor/slot_icon_clips.png", "left": 0, "clipX": 4 } }, { "type": "Label", "props": { "y": 12, "var": "txt_slotName", "top": 2, "text": "In", "left": 20, "height": 16, "fontSize": 14, "color": "#ffffff" } }, { "type": "TextInput", "props": { "x": 0, "width": 100, "var": "input_slotValue", "top": 2, "text": "Self", "skin": "editor/input_normal.png", "height": 16, "editable": true, "color": "#ffffff" } }] };
+            Elements.SlotInItemUI = SlotInItemUI;
+        })(Elements = Editor.Elements || (Editor.Elements = {}));
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        var Elements;
+        (function (Elements) {
+            class SlotOutItemUI extends View {
+                constructor() { super(); }
+                createChildren() {
+                    super.createChildren();
+                    this.createView(ui.Editor.Elements.SlotOutItemUI.uiView);
+                }
+            }
+            SlotOutItemUI.uiView = { "type": "View", "props": { "width": 50, "right": 0, "height": 20 }, "child": [{ "type": "Clip", "props": { "var": "clip_slotIcon", "top": 2, "skin": "editor/slot_icon_clips.png", "right": 0, "height": 16, "clipX": 4 } }, { "type": "Label", "props": { "var": "txt_slotName", "top": 2, "text": "Out", "right": 20, "height": 16, "fontSize": 14, "color": "#ffffff", "align": "left" } }] };
+            Elements.SlotOutItemUI = SlotOutItemUI;
+        })(Elements = Editor.Elements || (Editor.Elements = {}));
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        var Elements;
+        (function (Elements) {
+            class SlotsViewUI extends View {
+                constructor() { super(); }
+                createChildren() {
+                    View.regComponent("ui.SlotInItem", ui.SlotInItem);
+                    View.regComponent("ui.SlotOutItem", ui.SlotOutItem);
+                    super.createChildren();
+                    this.createView(ui.Editor.Elements.SlotsViewUI.uiView);
+                }
+            }
+            SlotsViewUI.uiView = { "type": "View", "props": { "width": 196, "height": 20 }, "child": [{ "type": "List", "props": { "y": 0, "var": "list_slotsIn", "spaceY": 20, "repeatX": 1, "left": 5 }, "child": [{ "type": "SlotInItem", "props": { "y": 0, "x": 0, "runtime": "ui.SlotInItem", "renderType": "render", "name": "render" } }] }, { "type": "List", "props": { "y": 0, "x": 171, "var": "list_slotsOut", "spaceY": 20, "repeatX": 1 }, "child": [{ "type": "SlotOutItem", "props": { "y": 0, "x": 0, "runtime": "ui.SlotOutItem", "renderType": "render", "name": "render" } }] }] };
+            Elements.SlotsViewUI = SlotsViewUI;
+        })(Elements = Editor.Elements || (Editor.Elements = {}));
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        var Elements;
+        (function (Elements) {
+            class TitleViewUI extends View {
+                constructor() { super(); }
+                createChildren() {
+                    super.createChildren();
+                    this.createView(ui.Editor.Elements.TitleViewUI.uiView);
+                }
+            }
+            TitleViewUI.uiView = { "type": "View", "props": { "width": 200, "height": 50 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 200, "var": "bg", "skin": "editor/node_title_normal.png", "height": 50 } }, { "type": "Box", "props": { "y": 0, "x": 0, "var": "txtTitleBox" }, "child": [{ "type": "Label", "props": { "y": -10, "x": -10, "var": "txt_nodeName", "top": 10, "text": "GetActiveCamera", "left": 10, "color": "#000000", "bold": true } }, { "type": "Label", "props": { "y": -10, "x": -10, "var": "txt_nodeType", "top": 28, "text": "GetActiveCamera", "left": 11, "fontSize": 10, "color": "#000000" } }] }] };
+            Elements.TitleViewUI = TitleViewUI;
+        })(Elements = Editor.Elements || (Editor.Elements = {}));
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        class GraphsViewUI extends View {
+            constructor() { super(); }
+            createChildren() {
+                super.createChildren();
+                this.createView(ui.Editor.GraphsViewUI.uiView);
+            }
+        }
+        GraphsViewUI.uiView = { "type": "View", "props": { "width": 0, "height": 0 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "var": "list_graphs", "spaceY": 5 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 168, "renderType": "render", "height": 12 }, "child": [{ "type": "Label", "props": { "underlineColor": "#010101", "underline": true, "name": "graphName", "color": "#030303" } }] }] }] };
+        Editor.GraphsViewUI = GraphsViewUI;
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        class LoginViewUI extends View {
+            constructor() { super(); }
+            createChildren() {
+                super.createChildren();
+                this.createView(ui.Editor.LoginViewUI.uiView);
+            }
+        }
+        LoginViewUI.uiView = { "type": "View", "props": { "width": 300, "height": 200 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 300, "skin": "editor/bg.png", "sizeGrid": "32,17,10,12", "height": 200 } }, { "type": "Label", "props": { "y": 8, "x": 126, "width": 26, "text": "Login", "height": 12, "bold": true, "align": "center" } }, { "type": "Box", "props": { "y": 63, "x": 47, "var": "boxIP" }, "child": [{ "type": "Label", "props": { "y": 5, "text": "UserName:", "bold": true } }, { "type": "TextInput", "props": { "x": 71, "var": "inputIP", "text": "your name...", "skin": "editor/textinput.png", "multiline": false } }] }, { "type": "Box", "props": { "y": 112, "x": 47 }, "child": [{ "type": "Label", "props": { "y": 5, "text": "UserPwd:", "bold": true } }, { "type": "TextInput", "props": { "x": 71, "text": "your password...", "skin": "editor/textinput.png", "multiline": false } }] }, { "type": "Button", "props": { "y": 159, "x": 108, "var": "btn_login", "skin": "editor/button.png", "label": "Login" } }] };
+        Editor.LoginViewUI = LoginViewUI;
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        class MainWindowUI extends View {
+            constructor() { super(); }
+            createChildren() {
+                super.createChildren();
+                this.createView(ui.Editor.MainWindowUI.uiView);
+            }
+        }
+        MainWindowUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 1900, "renderType": "instance", "name": "MainWindow", "height": 1100 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 1900, "skin": "editor/titleBg.png", "sizeGrid": "1,20,1,20", "name": "titleBg", "height": 34 }, "child": [{ "type": "Label", "props": { "y": 7, "x": 26, "width": 120, "text": "FlowGraphTool", "name": "titleTxt", "height": 20, "fontSize": 16, "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 34, "x": 0, "width": 1900, "skin": "editor/secondTitleBg.png", "sizeGrid": "10,10,10,10", "name": "secTitleBg", "height": 30 }, "child": [{ "type": "Label", "props": { "y": 5, "width": 50, "visible": true, "var": "file", "valign": "middle", "underline": true, "text": "File", "mouseEnabled": true, "left": 20, "height": 20, "fontSize": 14, "font": "Arial", "color": "#050505", "bold": false, "align": "center" } }, { "type": "Label", "props": { "y": 5, "width": 50, "visible": true, "var": "save", "valign": "middle", "underline": true, "text": "Save", "mouseEnabled": true, "left": 76, "height": 20, "fontSize": 14, "color": "#050505", "align": "center" } }, { "type": "Label", "props": { "y": 5, "width": 50, "visible": true, "var": "view", "valign": "middle", "underline": true, "text": "View", "mouseEnabled": true, "left": 132, "height": 20, "fontSize": 14, "color": "#050505", "align": "center" } }, { "type": "TextInput", "props": { "y": 32, "x": 295, "var": "input_graphName", "underline": false, "text": "input graph name...." } }, { "type": "Button", "props": { "y": 31, "x": 437, "var": "btn_save", "skin": "editor/button.png", "label": "save" } }] }] };
+        Editor.MainWindowUI = MainWindowUI;
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var Editor;
+    (function (Editor) {
+        class NodPaletteUI extends View {
+            constructor() { super(); }
+            createChildren() {
+                super.createChildren();
+                this.createView(ui.Editor.NodPaletteUI.uiView);
+            }
+        }
+        NodPaletteUI.uiView = { "type": "View", "props": { "width": 275 }, "child": [{ "type": "Image", "props": { "y": 1, "x": -2, "width": 275, "var": "bg", "skin": "editor/titleBg.png", "sizeGrid": "5,5,5,5", "height": 35 }, "child": [{ "type": "Label", "props": { "y": 12, "x": 11, "text": "Node Palette", "fontSize": 14, "color": "#fdf6f6" } }] }, { "type": "Box", "props": { "y": 35, "x": 0, "var": "box_search" }, "child": [{ "type": "TextInput", "props": { "y": 0, "x": 20, "width": 234, "var": "input_key", "text": "Search..", "skin": "editor/textinput.png", "sizeGrid": "5,5,5,5", "height": 20 } }, { "type": "Button", "props": { "y": 0, "x": 254, "width": 20, "skin": "comp/button.png", "label": "X", "height": 20 } }, { "type": "Image", "props": { "y": 0, "x": 0, "skin": "editor/icon_search.png" } }] }, { "type": "Tree", "props": { "y": 55, "x": 0, "width": 275, "var": "tree_nodes", "spaceBottom": 5, "scrollBarSkin": "editor/vscroll.png", "height": 300 }, "child": [{ "type": "Box", "props": { "name": "render" }, "child": [{ "type": "Label", "props": { "y": 0, "x": 14, "text": "label", "name": "label", "height": 14 } }, { "type": "Clip", "props": { "y": 0, "x": 0, "width": 14, "skin": "editor/clip_tree_arrow.png", "name": "arrow", "height": 14, "clipY": 2 } }] }] }] };
+        Editor.NodPaletteUI = NodPaletteUI;
+    })(Editor = ui.Editor || (ui.Editor = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var test;
+    (function (test) {
+        class TestPageUI extends View {
+            constructor() { super(); }
+            createChildren() {
+                super.createChildren();
+                this.createView(ui.test.TestPageUI.uiView);
+            }
+        }
+        TestPageUI.uiView = { "type": "View", "child": [{ "props": { "x": 0, "y": 0, "skin": "comp/bg.png", "sizeGrid": "30,4,4,4", "width": 600, "height": 400 }, "type": "Image" }, { "props": { "x": 41, "y": 56, "skin": "comp/button.png", "label": "点我赋值", "width": 150, "height": 37, "sizeGrid": "4,4,4,4", "var": "btn" }, "type": "Button" }, { "props": { "x": 401, "y": 56, "skin": "comp/clip_num.png", "clipX": 10, "var": "clip" }, "type": "Clip" }, { "props": { "x": 220, "y": 143, "skin": "comp/combobox.png", "labels": "select1,select2,selecte3", "selectedIndex": 1, "sizeGrid": "4,20,4,4", "width": 200, "height": 23, "var": "combobox" }, "type": "ComboBox" }, { "props": { "x": 220, "y": 96, "skin": "comp/tab.png", "labels": "tab1,tab2,tab3", "var": "tab" }, "type": "Tab" }, { "props": { "x": 259, "y": 223, "skin": "comp/vscroll.png", "height": 150 }, "type": "VScrollBar" }, { "props": { "x": 224, "y": 223, "skin": "comp/vslider.png", "height": 150 }, "type": "VSlider" }, { "type": "List", "child": [{ "type": "Box", "child": [{ "props": { "skin": "comp/label.png", "text": "this is a list", "x": 26, "y": 5, "width": 78, "height": 20, "fontSize": 14, "name": "label" }, "type": "Label" }, { "props": { "x": 0, "y": 2, "skin": "comp/clip_num.png", "clipX": 10, "name": "clip" }, "type": "Clip" }], "props": { "name": "render", "x": 0, "y": 0, "width": 112, "height": 30 } }], "props": { "x": 452, "y": 68, "width": 128, "height": 299, "vScrollBarSkin": "comp/vscroll.png", "repeatX": 1, "var": "list" } }, { "props": { "x": 563, "y": 4, "skin": "comp/btn_close.png", "name": "close" }, "type": "Button" }, { "props": { "x": 41, "y": 112, "skin": "comp/button.png", "label": "点我赋值", "width": 150, "height": 66, "sizeGrid": "4,4,4,4", "labelSize": 30, "labelBold": true, "var": "btn2" }, "type": "Button" }, { "props": { "x": 220, "y": 188, "skin": "comp/checkbox.png", "label": "checkBox1", "var": "check" }, "type": "CheckBox" }, { "props": { "x": 220, "y": 61, "skin": "comp/radiogroup.png", "labels": "radio1,radio2,radio3", "var": "radio" }, "type": "RadioGroup" }, { "type": "Panel", "child": [{ "props": { "skin": "comp/image.png" }, "type": "Image" }], "props": { "x": 299, "y": 223, "width": 127, "height": 150, "vScrollBarSkin": "comp/vscroll.png" } }, { "props": { "x": 326, "y": 188, "skin": "comp/checkbox.png", "label": "checkBox2", "labelColors": "#ff0000" }, "type": "CheckBox" }, { "type": "Box", "child": [{ "props": { "y": 70, "skin": "comp/progress.png", "width": 150, "height": 14, "sizeGrid": "4,4,4,4", "name": "progress" }, "type": "ProgressBar" }, { "props": { "y": 103, "skin": "comp/label.png", "text": "This is a Label", "width": 137, "height": 26, "fontSize": 20, "name": "label" }, "type": "Label" }, { "props": { "y": 148, "skin": "comp/textinput.png", "text": "textinput", "width": 150, "name": "input" }, "type": "TextInput" }, { "props": { "skin": "comp/hslider.png", "width": 150, "name": "slider" }, "type": "HSlider" }, { "props": { "y": 34, "skin": "comp/hscroll.png", "width": 150, "name": "scroll" }, "type": "HScrollBar" }], "props": { "x": 41, "y": 197, "var": "box" } }], "props": { "width": 600, "height": 400 } };
+        test.TestPageUI = TestPageUI;
+    })(test = ui.test || (ui.test = {}));
+})(ui || (ui = {}));
+//# sourceMappingURL=layaUI.max.all.js.map

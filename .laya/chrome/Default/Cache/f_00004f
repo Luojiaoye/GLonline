@@ -1,0 +1,457 @@
+/**
+* name 主窗口界面
+*/
+var ui;
+(function (ui) {
+    var Rectangle = Laya.Rectangle;
+    var EventType = core.EventType;
+    var Point = Laya.Point;
+    var Event = Laya.Event;
+    var SlotType = core.SlotType;
+    var ServerManager = core.ServerManager;
+    class MainWindow extends ui.Editor.MainWindowUI {
+        constructor() {
+            super();
+            this._dragingNode = false;
+            this._activeNodeView = null;
+            this.data = null; // 存在的流图数据
+            this.init();
+        }
+        init() {
+            this._conections = new Array();
+            this._nodes = new Dictionary();
+            this._dragRegion = new Rectangle(0, 0, this.width, this.height);
+            Laya.stage.graphics.drawRect(this._dragRegion.x, this._dragRegion.y, this._dragRegion.width, this._dragRegion.height, "#c0c0c0");
+            this.file.on(Laya.Event.CLICK, this, this.onClick);
+            this.view.on(Laya.Event.CLICK, this, this.onClick);
+            this.btn_save.on(Event.CLICK, this, this.onClick);
+            Laya.stage.on(EventType.LINE_START, this, this.onLineStartHandler);
+            Laya.stage.on(EventType.LINE_END, this, this.onLineEndHandler);
+            Laya.stage.on(EventType.NODE_DRAG_START, this, this.onNodeTragStartHandler);
+            Laya.stage.on(EventType.NODE_DRAG_END, this, this.onNodeTragEndHandler);
+            Laya.stage.on(EventType.ADD_NODE, this, this.onAddNodeHandler);
+            Laya.stage.on(Event.KEY_DOWN, this, this.onKeyDownHandler);
+            Laya.stage.on(EventType.NODES_READY, this, this.onNodesReadyHandler);
+            Laya.stage.on(EventType.REMOVE_NODE, this, this.onRemoveNodeHandler);
+            Laya.stage.on(EventType.REMOVE_CONNECTION, this, this.onRemoveConnectionHandler);
+            Laya.stage.on(EventType.RELOAD_GRAPH, this, this.onReloadGraphHandler);
+            this.on(Event.MOUSE_UP, this, this.onMouseUpHandler);
+            this.on(Event.MOUSE_DOWN, this, this.onPressHandler);
+            this.on(Event.CLICK, this, this.onClickHandler);
+            Laya.timer.frameLoop(1, this, this.postUpdate);
+        }
+        onKeyDownHandler(evt) {
+            if (evt.keyCode == 46) {
+                if (this._activeNodeView)
+                    this.removeNodeView(this._activeNodeView.data["id"]);
+            }
+        }
+        onNodesReadyHandler() {
+            let nodePalette = new ui.NodePalette(this._dragRegion);
+            nodePalette.y = 64;
+            this.addChild(nodePalette);
+        }
+        // create node view
+        createNodeView(node, anchor) {
+            let nodeView = new ui.NodeView(this._dragRegion);
+            nodeView.setData(node);
+            nodeView.x = anchor.x;
+            nodeView.y = anchor.y;
+            this.addChild(nodeView);
+            this._nodes.set(nodeView.data["id"], nodeView);
+        }
+        removeNodeView(nodeId) {
+            let badArray = new Array();
+            // 删除node关联的relation
+            for (let index = 0; index < this._conections.length; ++index) {
+                let relation = this._conections[index].data;
+                if (relation.inputNodeId.toString() == nodeId || relation.outputNodeId.toString() == nodeId) {
+                    badArray.push(this._conections[index]);
+                }
+            }
+            for (let index = 0; index < badArray.length; ++index) {
+                for (let idx = 0; idx < this._conections.length; ++idx) {
+                    if (this._conections[idx].data.equals(badArray[index].data)) {
+                        this._conections[idx].destroy();
+                        this._conections.splice(idx, 1);
+                    }
+                }
+            }
+            // 删除node界面
+            let nodeView = this._nodes.get(nodeId);
+            this.removeChild(nodeView);
+            this._nodes.remove(nodeId);
+            DataManager.getInstance().removeSlotData(Number(nodeId));
+        }
+        onPressHandler(evt) {
+        }
+        onClickHandler(evt) {
+            this._activeNodeView = null;
+        }
+        postUpdate() {
+            if (DataManager.drawing) {
+                let sX = this._startPos.x;
+                let sY = this._startPos.y;
+                let eX = this.mouseX;
+                let eY = this.mouseY;
+                let startPoint = new Point(sX, sY);
+                startPoint = this.globalToLocal(startPoint);
+                let endPoint = new Point(eX, eY);
+                endPoint = this.globalToLocal(endPoint);
+                this._curConnection.drawLine(startPoint, endPoint, this._curConnection.data.left == null);
+            }
+            if (this._dragingNode) {
+                let connection = null;
+                for (let i in this._conections) {
+                    connection = this._conections[i];
+                    connection.update();
+                }
+            }
+        }
+        onMouseUpHandler(evt) {
+            Laya.stage.event(EventType.LINE_END, [null]);
+        }
+        onLineEndHandler(pos, item) {
+            DataManager.drawing = false;
+            let clear = true;
+            if (item) {
+                let data = item["dataSource"];
+                let cur = this._curConnection.data;
+                let other = DataManager.getInstance().createRelation(data);
+                if (DataManager.getInstance().checkAndMegreRelation(cur, other)) {
+                    if (other.inputNodeId > 0)
+                        cur.left = item;
+                    else
+                        cur.right = item;
+                    this._conections.push(this._curConnection);
+                    let startPoint = this._startPos;
+                    startPoint = this.globalToLocal(startPoint);
+                    let endPoint = pos;
+                    endPoint = this.globalToLocal(pos);
+                    this._curConnection.drawLine(startPoint, endPoint, true);
+                    this._curConnection = null;
+                    clear = false;
+                }
+            }
+            if (this._curConnection && clear) {
+                this._curConnection.clearLine();
+                this.removeChild(this._curConnection);
+                this._curConnection.destroy();
+                this._curConnection = null;
+            }
+        }
+        onLineStartHandler(startPos, item) {
+            this._startPos = startPos;
+            DataManager.drawing = true;
+            let connection = new ui.ConectionView();
+            this.addChild(connection);
+            let relation = DataManager.getInstance().createRelation(item["dataSource"]);
+            if (relation.inputNodeId > 0)
+                relation.left = item;
+            else
+                relation.right = item;
+            connection.setData(relation);
+            this._curConnection = connection;
+        }
+        // 開始拖動節點
+        onNodeTragStartHandler(nodeId) {
+            this._dragingNode = true;
+            this._activeNodeView = this._nodes.get(nodeId);
+        }
+        // 結束拖動節點
+        onNodeTragEndHandler(nodeId) {
+            this._dragingNode = false;
+        }
+        // 清理
+        clear() {
+            for (let nodeView of this._nodes.values) {
+                nodeView.destroy();
+            }
+            this._nodes.clear();
+            while (this._conections.length > 0) {
+                let connectionView = this._conections.pop();
+                connectionView.destroy();
+            }
+        }
+        // 更新界面
+        update() {
+            this.clear();
+            // 获取流图名称
+            this.input_graphName.text = this.data["name"];
+            // 获取event节点
+            let eventsObj = this.data["event"];
+            // 缓存关系插槽
+            let nextEndPoint = new Array();
+            let inputEndPoint = new Array();
+            let valueEndPint = new Array();
+            // 获取节点数据创建节点视图
+            for (let nodeId in this.data) {
+                let nodeObj = this.data[nodeId];
+                let nodeName = nodeObj["name"];
+                if (nodeName && nodeName != "") {
+                    let pos = nodeObj["ui_position"];
+                    if (nodeName == "flow_graph_node") {
+                        nodeName = nodeObj["children_flow_graph_name"];
+                    }
+                    let node = DataManager.getInstance().getNode(nodeName);
+                    node["id"] = nodeId;
+                    this.createNodeView(node, new Point(pos[0], pos[1]));
+                    // 该节点执行输出关系
+                    let nextRelationObj = nodeObj["next"];
+                    if (nextRelationObj) {
+                        for (let slotName in nextRelationObj) {
+                            let nodeIds = nextRelationObj[slotName];
+                            for (let nId of nodeIds) {
+                                nextEndPoint.push({ "nodeId": nId, "slotName": slotName, "curId": nodeId });
+                            }
+                        }
+                    }
+                    // 该节点数据输入关系
+                    let inputRelationObj = nodeObj["input"];
+                    if (inputRelationObj) {
+                        for (let slotName in inputRelationObj) {
+                            let endPointObj = inputRelationObj[slotName];
+                            if (!endPointObj["defaultValue"]) {
+                                inputEndPoint.push({ "nodeId": endPointObj["node_id"], "slotName": slotName, "curId": nodeId, "pin": endPointObj["pin"] });
+                            }
+                            else {
+                                valueEndPint.push({ "slotName": slotName, "curId": nodeId, "defaultValue": endPointObj["defaultValue"] });
+                            }
+                        }
+                    }
+                }
+            }
+            for (let nodeView of this._nodes.values) {
+                // 当前节点id
+                let nodeId = Number(nodeView.data["id"]);
+                // 处理输入插槽
+                let ins = nodeView.getSlotIns();
+                for (let slotData of ins) {
+                    if (!slotData)
+                        continue;
+                    let type = slotData["type"].toString();
+                    let isDataIn = type == SlotType.DataIn.toString();
+                    let isExecutionIn = type == SlotType.ExecutionIn.toString();
+                    let connection = null;
+                    let cur = null;
+                    if (isExecutionIn) {
+                        for (let endPoint of nextEndPoint) {
+                            // 具有执行输出与之对应
+                            if (endPoint["nodeId"] == nodeId) {
+                                if (connection == null) {
+                                    connection = new ui.ConectionView();
+                                    this.addChild(connection);
+                                    cur = DataManager.getInstance().createRelation(slotData);
+                                    let item = nodeView.getItem(slotData["name"]);
+                                    if (cur.inputNodeId > 0)
+                                        cur.left = item;
+                                    else
+                                        cur.right = item;
+                                    connection.setData(cur);
+                                }
+                                let endPointObj = DataManager.getInstance().getSlotData(Number(endPoint["curId"]), endPoint["slotName"]);
+                                let other = DataManager.getInstance().createRelation(endPointObj);
+                                if (DataManager.getInstance().checkAndMegreRelation(cur, other)) {
+                                    let nodeView = this._nodes.get(endPoint["curId"]);
+                                    let it = nodeView.getItem(endPoint["slotName"]);
+                                    if (other.inputNodeId > 0)
+                                        cur.left = it;
+                                    else
+                                        cur.right = it;
+                                    this._conections.push(connection);
+                                    connection.update();
+                                }
+                            }
+                        }
+                    }
+                    else if (isDataIn) // 处理数据输入
+                     {
+                        // 设置数据优先
+                        for (let endPoint of valueEndPint) {
+                            let str = "";
+                            // 存在值设置
+                            if (slotData["dataType"] == "vector3") {
+                                str = slotData["value"].toString();
+                            }
+                            else {
+                                str = slotData["value"].toString();
+                            }
+                            let inItem = nodeView.getItem(endPoint["slotName"]);
+                            if (inItem)
+                                inItem.setValue(str);
+                        }
+                        // 输入连线
+                        for (let endPoint of inputEndPoint) {
+                            if (endPoint["curId"] == nodeId.toString() && slotData["name"] == endPoint["slotName"] && endPoint["nodeId"] && endPoint["pin"]) {
+                                // 存在数据输出与之对应
+                                if (connection == null) {
+                                    connection = new ui.ConectionView();
+                                    this.addChild(connection);
+                                    cur = DataManager.getInstance().createRelation(slotData);
+                                    let item = nodeView.getItem(slotData["name"]);
+                                    if (cur.inputNodeId > 0)
+                                        cur.left = item;
+                                    else
+                                        cur.right = item;
+                                    connection.setData(cur);
+                                }
+                                let endPointObj = DataManager.getInstance().getSlotData(Number(endPoint["nodeId"]), endPoint["pin"]);
+                                let other = DataManager.getInstance().createRelation(endPointObj);
+                                if (DataManager.getInstance().checkAndMegreRelation(cur, other)) {
+                                    let nodeView = this._nodes.get(endPoint["nodeId"]);
+                                    let it = nodeView.getItem(endPoint["pin"]);
+                                    if (other.inputNodeId > 0)
+                                        cur.left = it;
+                                    else
+                                        cur.right = it;
+                                    this._conections.push(connection);
+                                    connection.update();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // 创建关系图
+        createRelationGraph() {
+            let graphName = this.input_graphName.text.trim();
+            let index = graphName.indexOf(".");
+            if (index > 0) {
+                graphName = graphName.substring(0, index);
+            }
+            let graph = { "name": graphName };
+            let eventObj = {};
+            for (let index in this._nodes.keys) {
+                let nodeId = this._nodes.keys[index];
+                let nodeView = this._nodes.get(nodeId);
+                let nodeObj = { "name": nodeView.data["name"], "category": nodeView.data["category"] };
+                if (nodeView.data["children_flow_graph_name"]) {
+                    nodeObj["name"] = "flow_graph_node"; // 转一次节点名字因为服务器要求如此
+                    console.log(nodeObj["name"]);
+                    nodeObj["children_flow_graph_name"] = nodeView.data["children_flow_graph_name"];
+                }
+                if (nodeView.data["children_flow_graph_call"]) {
+                    graph["children_flow_graph_call"] = nodeView.data["children_flow_graph_call"];
+                }
+                if (nodeView.data["children_flow_graph_return"]) {
+                    graph["children_flow_graph_return"] = nodeView.data["children_flow_graph_return"];
+                }
+                let nextObj = null;
+                let inputObj = null;
+                // 处理输出插槽
+                let outs = nodeView.getSlotsOuts(); //let obj:Object = {"type":SlotType.DataOut, "name":"", "dataType":"", "id":this.data["id"], "nodeName":this.data["name"]};
+                for (let idx in outs) {
+                    let slotData = outs[idx];
+                    if (slotData["type"] == SlotType.ExecutionOut.toString()) {
+                        // 处理执行输出
+                        for (let i in this._conections) {
+                            let relation = this._conections[i].data;
+                            if (relation.outputNodeId.toString() == nodeId && relation.outputType == SlotType.ExecutionOut.toString()) {
+                                if (!nextObj)
+                                    nextObj = {};
+                                if (!nextObj[relation.outputName])
+                                    nextObj[relation.outputName] = [relation.inputNodeId.toString()];
+                                else {
+                                    // 防止重复添加
+                                    if (nextObj[relation.outputName].indexOf(relation.inputNodeId) == -1) {
+                                        nextObj[relation.outputName].push(relation.inputNodeId.toString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // 处理输入插槽
+                let ins = nodeView.getSlotIns();
+                for (let i in ins) {
+                    let slotData = ins[i];
+                    if (slotData["type"] == SlotType.ExecutionIn.toString()) {
+                        // 处理执行输入
+                    }
+                    else {
+                        // 处理数据输入
+                        for (let i in this._conections) {
+                            let relation = this._conections[i].data;
+                            if (relation.inputNodeId.toString() == nodeId && relation.inputType == SlotType.DataIn.toString()) {
+                                // 处理数据输入插槽
+                                if (!inputObj)
+                                    inputObj = {};
+                                inputObj[relation.inputName] = { "node_id": relation.outputNodeId, "pin": relation.outputName };
+                            }
+                        }
+                        // 设置默认值
+                        if (!inputObj || !inputObj[slotData["name"]]) {
+                            if (!inputObj)
+                                inputObj = {};
+                            if (slotData["dataType"] == "vector3") {
+                                let str = slotData["value"];
+                                let valueObj = str.split(",");
+                                inputObj[slotData["name"]] = { "defaultValue": valueObj };
+                            }
+                            else {
+                                inputObj[slotData["name"]] = { "defaultValue": slotData["value"] };
+                            }
+                        }
+                    }
+                }
+                if (nodeView.data["type"] == "event") {
+                    eventObj[nodeView.data["name"]] = nodeId;
+                }
+                if (nextObj)
+                    nodeObj["next"] = nextObj;
+                if (inputObj)
+                    nodeObj["input"] = inputObj;
+                nodeObj["ui_position"] = [nodeView.x, nodeView.y];
+                graph[nodeId] = nodeObj;
+            }
+            graph["event"] = eventObj;
+            return graph;
+        }
+        onAddNodeHandler(node, x, y) {
+            this.createNodeView(node, this.globalToLocal(new Point(x, y)));
+        }
+        onRemoveNodeHandler(nodeId) {
+            this._activeNodeView = this._nodes.get(nodeId);
+        }
+        onRemoveConnectionHandler(connection) {
+            for (let index = 0; index < this._conections.length; ++index) {
+                if (this._conections[index].data.equals(connection.data)) {
+                    this._conections.splice(index, 1);
+                }
+            }
+        }
+        onReloadGraphHandler(graphName) {
+            this.setData(DataManager.getInstance().getGraph(graphName));
+        }
+        onClick(evt) {
+            switch (evt.currentTarget) {
+                case this.file:
+                    if (this._graphView) {
+                        this._graphView.destroy();
+                        this._graphView = null;
+                    }
+                    else {
+                        this._graphView = new ui.GraphsView();
+                        this._graphView.x = evt.stageX;
+                        this._graphView.y = evt.stageY;
+                        this.addChild(this._graphView);
+                    }
+                    break;
+                case this.view:
+                    break;
+                case this.btn_save:
+                    let graph = this.createRelationGraph();
+                    let str = JSON.stringify(graph);
+                    ServerManager.getInstance().sendGraph(str);
+            }
+        }
+        setData(data) {
+            this.data = data;
+            DataManager.getInstance().clearGUID();
+            this.update();
+        }
+    }
+    ui.MainWindow = MainWindow;
+})(ui || (ui = {}));
+//# sourceMappingURL=MainWindow.js.map

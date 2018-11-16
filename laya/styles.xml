@@ -1,0 +1,26 @@
+<res>
+   <item name="editor/vslider.png" type="VSlider" compress="0" pack="0" quality="80" props="sizeGrid=15,48,15,48" picType="0" scale="0"/>
+   <item name="editor/bg_wenli.png" type="Image" compress="0" pack="2" quality="80" props="" picType="1" scale="0"/>
+   <item name="editor/dibu_bg.png" type="Image" compress="0" pack="1" quality="80" props="" picType="1" scale="0"/>
+   <item name="editor/top_bg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=5,5,5,5" picType="0" scale="0"/>
+   <item name="editor/yinying_bg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,5,0,5" picType="0" scale="0"/>
+   <item name="editor/shurukuang_bg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=10,60,10,60" picType="0" scale="0"/>
+   <item name="editor/input_bg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=10,10,10,10" picType="0" scale="0"/>
+   <item name="editor/login_btn.png" type="Button" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
+   <item name="editor/title_btn.png" type="Button" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
+   <item name="editor/addFile.png" type="Button" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
+   <item name="editor/setInputBg.png" type="TextInput" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
+   <item name="editor/nodeViewBg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=40,40,40,40" picType="0" scale="0"/>
+   <item name="editor/0.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/nodeSelectBg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=40,40,40,40" picType="0" scale="0"/>
+   <item name="editor/1.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/10.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/2.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/3.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/4.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/5.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/6.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/7.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/8.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+   <item name="editor/9.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,20,0,20" picType="0" scale="0"/>
+</res>
